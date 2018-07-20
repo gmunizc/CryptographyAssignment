@@ -1,2 +1,2 @@
-# CriptographyAssignment
-Final assginment: Conding RSA criptography for a C programming class at university
+# CryptographyAssignment
+Final assginment: Conding RSA cryptography for a C programming class at university
