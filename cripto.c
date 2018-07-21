@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define MAXLINE 1000
 
 //function declarations:
 char *getline(char line[],int max);
 void encrypt(char *str);
 void decrypt(char *str);
+char *readFromFile(char fileName[]);
 
 int main(int argc, char **argv)
 {
@@ -13,12 +15,16 @@ int main(int argc, char **argv)
 	char line[MAXLINE];
 	char *pline;
 
+	char *inputStream;
+
 	int failedExec = 1;
 	if(strcmp(*(argv+1), "-c") == 0)
 	{	
 		failedExec = 0;
 		printf("Encrypting...\n");
 
+		inputStream = readFromFile("numcripto.txt");
+		printf("Reading: %s",inputStream);	
 
 		while(strlen(pline = getline(line, max))>0)
 		{	
@@ -31,7 +37,9 @@ int main(int argc, char **argv)
 		failedExec = 0;
 		printf("Decrypting...\n");
 
-		
+		inputStream = readFromFile("numdescripto.txt");
+		printf("Reading: %s",inputStream);	
+
 		while(strlen(pline = getline(line, max))>0)
 		{	
 			decrypt(pline);
@@ -65,10 +73,41 @@ char *getline(char line[],int max)
 
 void encrypt(char *str)
 {
-	printf("line: %s",str);	
+	printf("line: %s",str);
 }
 
 void decrypt(char *str)
 {
 	printf("line: %s",str);
 }
+
+char *readFromFile(char fileName[])
+{
+	FILE *fptr;
+
+	fptr = fopen(fileName,"r");
+	if (fptr == NULL)
+	{
+		printf("Cannot open file!\n");
+		exit(0);
+	}
+
+	int i = 0;
+	char *str;
+	str = malloc(100 * sizeof(char));
+	int c;	
+	c = fgetc(fptr);
+	while (c != EOF)
+	{
+		str[i] = c;
+		i++;
+		c = fgetc(fptr);
+	}
+	fclose(fptr);
+	
+	return str;
+}
+
+
+
+
