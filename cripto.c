@@ -3,11 +3,17 @@
 #include <stdlib.h>
 #define MAXLINE 1000
 
+typedef struct {
+	int key1;
+	int key2;
+} Keys;
+
 //function declarations:
 char *getline(char line[],int max);
 void encrypt(char *str);
 void decrypt(char *str);
 char *readFromFile(char fileName[]);
+Keys parseKeys(char* str);
 
 int main(int argc, char **argv)
 {
@@ -26,6 +32,12 @@ int main(int argc, char **argv)
 		inputStream = readFromFile("numcripto.txt");
 		printf("Reading: %s",inputStream);	
 
+		Keys publicKeys;
+		publicKeys = parseKeys(inputStream);	
+	
+		printf("key1: %d\n",publicKeys.key1);
+		printf("key2: %d\n",publicKeys.key2);
+
 		while(strlen(pline = getline(line, max))>0)
 		{	
 			encrypt(pline);
@@ -39,6 +51,13 @@ int main(int argc, char **argv)
 
 		inputStream = readFromFile("numdescripto.txt");
 		printf("Reading: %s",inputStream);	
+
+		Keys privateKeys;
+		privateKeys = parseKeys(inputStream);	
+	
+		printf("key1: %d\n",privateKeys.key1);
+		printf("key2: %d\n",privateKeys.key2);
+
 
 		while(strlen(pline = getline(line, max))>0)
 		{	
@@ -88,7 +107,7 @@ char *readFromFile(char fileName[])
 	fptr = fopen(fileName,"r");
 	if (fptr == NULL)
 	{
-		printf("Cannot open file!\n");
+		printf("Error -	Cannot open file: %s!\n", fileName);
 		exit(0);
 	}
 
@@ -108,6 +127,46 @@ char *readFromFile(char fileName[])
 	return str;
 }
 
+Keys parseKeys(char* str)
+{
+	Keys keys;
 
+	char *key1;
+	char *key2;
+
+	key1 = malloc(10 * sizeof(char));
+	key2 = malloc(10 * sizeof(char));
+
+	int isFirstKey = 1;
+
+	int max = strlen(str);
+	int c, i, j;
+
+	j = 0;
+	for (i = 0; i < max -1 && (c=str[i]) != EOF && c != '\n'; ++i)
+	{
+		if(c == ' ')
+		{
+			key1[i] = '\0';
+			isFirstKey = 0;
+		}
+		if(isFirstKey)
+		{		
+			key1[i] = c;
+		}
+		else
+		{
+			key2[j] = c;
+			j++;
+		}
+	}
+	
+	key2[j] = '\0';
+
+	keys.key1 = atoi(key1);
+	keys.key2 = atoi(key2);
+
+	return keys;
+}
 
 
