@@ -23,6 +23,7 @@ int getPrimeWith(int n);
 Keys getPublicKeys(Primes primes);
 Keys getPrivateKeys(Primes primes);
 void generatePublicKeysFile(Keys publicKeys);
+void generatePrivateKeysFile(Keys privateKeys);
 
 int main()
 {
@@ -35,10 +36,9 @@ int main()
 
 		Keys privateKeys;
 		privateKeys = getPrivateKeys(primes);
-		printf("PrivateKey1: %d\n", privateKeys.key1);
-		printf("PrivateKey2: %d\n", privateKeys.key2);
 
 		generatePublicKeysFile(publicKeys);
+		generatePrivateKeysFile(privateKeys);
 
 	}
 	return 0;
@@ -198,4 +198,23 @@ void generatePublicKeysFile(Keys publicKeys){
 	fprintf(fptr, "%d %d\n",publicKey1, publicKey2);
 	printf("numcripto.txt criado com sucesso!\n");
 	fclose(fptr);
+}
+
+void generatePrivateKeysFile(Keys privateKeys){
+
+	int privateKey1 = privateKeys.key1;
+	int privateKey2 = privateKeys.key2;
+
+	FILE *fptr;
+
+	fptr = fopen("numdescripto.txt","w");
+	if (fptr == NULL)
+	{
+		printf("Cannot open file!\n");
+		exit(0);
+	}
+	fprintf(fptr, "%d %d\n",privateKey1, privateKey2);
+	printf("numdescripto.txt criado com sucesso!\n");
+	fclose(fptr);
+
 }
