@@ -21,6 +21,7 @@ int isPrime(int n);
 Primes getPrimes(void);
 int getPrimeWith(int n);
 Keys getPublicKeys(Primes primes);
+Keys getPrivateKeys(Primes primes);
 void generatePublicKeysFile(Keys publicKeys);
 
 int main()
@@ -31,7 +32,12 @@ int main()
 	{
 		Keys publicKeys;
 		publicKeys = getPublicKeys(primes);
-		
+
+		Keys privateKeys;
+		privateKeys = getPrivateKeys(primes);
+		printf("PrivateKey1: %d\n", privateKeys.key1);
+		printf("PrivateKey2: %d\n", privateKeys.key2);
+
 		generatePublicKeysFile(publicKeys);
 
 	}
@@ -138,6 +144,42 @@ Keys getPublicKeys(Primes primes){
 	publicKeys.key2 = multPrime;
 
 	return publicKeys;
+}
+
+
+Keys getPrivateKeys(Primes primes){
+	
+	Keys privateKeys;
+
+	int prime1 = primes.prime1;
+	int prime2 = primes.prime2;
+	
+	int multPrime = prime1 * prime2;
+	int multAntPrime = (prime1-1) * (prime2-1);
+
+	int publicKey1 = getPrimeWith(multAntPrime);
+
+	int n = 1;
+	int found = 0;
+	while(!found)
+	{
+		if(((n*publicKey1) % multAntPrime) == 1)
+		{
+			found = 1;
+		}
+		else
+		{
+			n++;
+		}
+	}
+	
+	int privateKey1 = n;
+	int privateKey2 = multPrime;	
+
+	privateKeys.key1 = privateKey1; 
+	privateKeys.key2 = privateKey2;
+
+	return privateKeys;
 }
 
 void generatePublicKeysFile(Keys publicKeys){
