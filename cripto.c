@@ -15,8 +15,8 @@ char *encrypt(Keys publicKeys,char *str);
 void decrypt(Keys publicKeys,char *str);
 char *readFromFile(char fileName[]);
 Keys parseKeys(char* str);
-int aToXpowerModY(int a, int x, int y);
-void writeEncryptedMessageToFile(char *str);
+unsigned long aToXpowerModY(int a, int x, int y);
+void writeEncryptedMessageToFile(char **str);
 
 int main(int argc, char **argv)
 {
@@ -33,22 +33,21 @@ int main(int argc, char **argv)
 		printf("Encrypting...\n");
 
 		inputStream = readFromFile("numcripto.txt");
-		printf("Reading: %s",inputStream);
 
 		Keys publicKeys;
 		publicKeys = parseKeys(inputStream);	
-	
-		printf("key1: %d\n",publicKeys.key1);
-		printf("key2: %d\n",publicKeys.key2);
 
-		char *encryptedMessage;
+		char *encryptedMessage[100];
 
+		int i = 0;
 		while(strlen(pline = getline(line, max))>0)
 		{	
-			encryptedMessage = encrypt(publicKeys,pline);
-			printf("encryptedMessage: %s",encryptedMessage);
-			//writeEncryptedMessageToFile(encryptedMessage);
+			encryptedMessage[i] = encrypt(publicKeys,pline);
+			i++;
+
 		}
+		encryptedMessage[i] = "END";
+		writeEncryptedMessageToFile(encryptedMessage);
 
 	}	
 	if(strcmp(*(argv+1), "-d") == 0)
@@ -97,24 +96,29 @@ char *getline(char line[],int max)
 	return line;
 }
 
-char *encrypt(Keys publicKeys, char *str)
+char *encrypt(Keys publicKeys, char *message)
 {
 
 	char *encryptedMessage;
-	encryptedMessage = malloc(100 * sizeof(char));
+	encryptedMessage = calloc(150,sizeof(char)	);
 
 	int x = publicKeys.key1;
 	int y = publicKeys.key2;
 
+    	char buf[50];
+
 	int a;
 	int i;
-	for(i = 0; i < strlen(str) - 1; i++)
+	for(i = 0; i < strlen(message) - 2; i++)
 	{
-		a = str[i];
-		encryptedMessage[i] = aToXpowerModY(a,x,y);
+		a = message[i];
+		snprintf(buf, 50, "%d", (int)aToXpowerModY(a,x,y));
+		strcat(encryptedMessage,buf);
+		strcat(encryptedMessage," ");
 	}
-	encryptedMessage[i++] = '\n';
-	encryptedMessage[i] = '\0';	
+	a = message[i];
+	snprintf(buf, 50, "%d", (int)aToXpowerModY(a,x,y));
+	strcat(encryptedMessage,buf);
 
 	return encryptedMessage;
 
@@ -194,14 +198,14 @@ Keys parseKeys(char* str)
 	return keys;
 }
 
-int aToXpowerModY(int a, int x, int y)
+unsigned long aToXpowerModY(int a, int x, int y)
 {
 	int mask = 1;
 	int isBit1 = 0;
 	int apow = 0;
-	int ac = 1;
+	unsigned long ac = 1;
 
-	int ac2 = (int)pow(a,2) % y;
+	unsigned long ac2 = (unsigned long)pow(a,2) % y;
 
 	for(int i = 0; i < 31; i++)
 	{
@@ -209,11 +213,11 @@ int aToXpowerModY(int a, int x, int y)
 		if(i == 0)
 		{
 			apow = isBit1*pow(2,i);
-			ac *= (int)pow(a,apow)%y;
+			ac *= (unsigned long)pow(a,apow)%y;
 		}
 		if(i > 0 && isBit1)
 		{		
-			ac *= (int)pow(ac2,i)%y;
+			ac *= (unsigned long)pow(ac2,i)%y;
 			ac = ac % y; 
 		}
 		mask = mask<<1;
@@ -224,7 +228,7 @@ int aToXpowerModY(int a, int x, int y)
 
 }
 
-void writeEncryptedMessageToFile(char *str)
+void writeEncryptedMessageToFile(char **str)
 {
 
 	FILE *fptr;
@@ -235,10 +239,18 @@ void writeEncryptedMessageToFile(char *str)
 		printf("Cannot open file!\n");
 		exit(0);
 	}
-	int i;
-	for(i = 0; i < strlen(str) - 1; i++)
-		fprintf(fptr, "%d ",str[i]);
-	fprintf(fptr, "%d\n",str[i]);
+
+	int j = 0;
+	while(strcmp(str[j],"END") != 0)
+	{		
+		fprintf(fptr, "%s ",str[j]);
+		j++;
+	}
+	fprintf(fptr, "\n");
+
 	printf("encryptedMessage.txt criado com sucesso!\n");
 	fclose(fptr);
 }
+
+
+
