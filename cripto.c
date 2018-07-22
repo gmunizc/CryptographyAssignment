@@ -12,11 +12,12 @@ typedef struct {
 //function declarations:
 char *getline(char line[],int max);
 char *encrypt(Keys publicKeys,char *str);
-void decrypt(Keys publicKeys,char *str);
+char *decrypt(Keys publicKeys,char *str);
 char *readFromFile(char fileName[]);
 Keys parseKeys(char* str);
 unsigned long aToXpowerModY(int a, int x, int y);
 void writeEncryptedMessageToFile(char **str);
+void writeDecryptedMessageToFile(char **str);
 
 int main(int argc, char **argv)
 {
@@ -62,19 +63,20 @@ int main(int argc, char **argv)
 			printf("Decrypting...\n");
 
 			inputStream = readFromFile("numdescripto.txt");
-			printf("Reading: %s",inputStream);
+
+			char *encryptedMessage;
+			encryptedMessage = readFromFile("encryptedMessage.txt");
+			printf("encryptedMessage: %s",encryptedMessage);
 
 			Keys privateKeys;
 			privateKeys = parseKeys(inputStream);	
-	
-			printf("key1: %d\n",privateKeys.key1);
-			printf("key2: %d\n",privateKeys.key2);
 
+			char *decryptedMessage[100];
+			decryptedMessage[j] = decrypt(privateKeys,encryptedMessage);
+			decryptedMessage[j] = "END";
 
-			while(strlen(pline = getline(line, max))>0)
-			{	
-				decrypt(privateKeys, pline);
-			}
+			writeDecryptedMessageToFile(decryptedMessage);
+
 
 		}
 		if(failedExec)
@@ -132,9 +134,11 @@ char *encrypt(Keys publicKeys, char *message)
 
 }
 
-void decrypt(Keys publicKeys, char *str)
+char *decrypt(Keys publicKeys, char *str)
 {
+	char *test = "Teste";
 	printf("line: %s",str);
+	return test;
 }
 
 char *readFromFile(char fileName[])
@@ -251,14 +255,35 @@ void writeEncryptedMessageToFile(char **str)
 	int j = 0;
 	while(strcmp(str[j],"END") != 0)
 	{		
-		fprintf(fptr, "%s ",str[j]);
+		fprintf(fptr, "%s\n",str[j]);
 		j++;
 	}
-	fprintf(fptr, "\n");
 
 	printf("encryptedMessage.txt criado com sucesso!\n");
 	fclose(fptr);
 }
 
 
+void writeDecryptedMessageToFile(char **str)
+{
 
+	FILE *fptr;
+
+	fptr = fopen("decryptedMessage.txt","w");
+	if (fptr == NULL)
+	{
+		printf("Cannot open file!\n");
+		exit(0);
+	}
+
+	int j = 0;
+	while(strcmp(str[j],"END") != 0)
+	{	
+		fprintf(fptr, "%s ",str[j]);
+		j++;
+	}
+	fprintf(fptr, "\n");
+
+	printf("decryptedMessage.txt criado com sucesso!\n");
+	fclose(fptr);
+}
