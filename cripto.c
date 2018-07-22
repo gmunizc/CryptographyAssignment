@@ -27,53 +27,61 @@ int main(int argc, char **argv)
 	char *inputStream;
 
 	int failedExec = 1;
-	if(strcmp(*(argv+1), "-c") == 0)
-	{	
-		failedExec = 0;
-		printf("Encrypting...\n");
-
-		inputStream = readFromFile("numcripto.txt");
-
-		Keys publicKeys;
-		publicKeys = parseKeys(inputStream);	
-
-		char *encryptedMessage[100];
-
-		int i = 0;
-		while(strlen(pline = getline(line, max))>0)
-		{	
-			encryptedMessage[i] = encrypt(publicKeys,pline);
-			i++;
-
-		}
-		encryptedMessage[i] = "END";
-		writeEncryptedMessageToFile(encryptedMessage);
-
-	}	
-	if(strcmp(*(argv+1), "-d") == 0)
+	if(argc != 2)
 	{
-		failedExec = 0;
-		printf("Decrypting...\n");
-
-		inputStream = readFromFile("numdescripto.txt");
-		printf("Reading: %s",inputStream);
-
-		Keys privateKeys;
-		privateKeys = parseKeys(inputStream);	
-	
-		printf("key1: %d\n",privateKeys.key1);
-		printf("key2: %d\n",privateKeys.key2);
-
-
-		while(strlen(pline = getline(line, max))>0)
-		{	
-			decrypt(privateKeys, pline);
-		}
-
+		printf("This program can only run with subcommand -c or -d!\n");
 	}
-	if(failedExec)
+	else
 	{
-		printf("Unexpected subcommand!\n");
+		if(strcmp(*(argv+1), "-c") == 0)
+		{	
+			failedExec = 0;
+			printf("Encrypting...\n");
+
+			inputStream = readFromFile("numcripto.txt");
+
+			Keys publicKeys;
+			publicKeys = parseKeys(inputStream);	
+
+			char *encryptedMessage[100];
+
+			int i = 0;
+			while(strlen(pline = getline(line, max))>0)
+			{	
+				encryptedMessage[i] = encrypt(publicKeys,pline);
+				i++;
+
+			}
+			encryptedMessage[i] = "END";
+			writeEncryptedMessageToFile(encryptedMessage);
+
+		}	
+		if(strcmp(*(argv+1), "-d") == 0)
+		{
+			failedExec = 0;
+			printf("Decrypting...\n");
+
+			inputStream = readFromFile("numdescripto.txt");
+			printf("Reading: %s",inputStream);
+
+			Keys privateKeys;
+			privateKeys = parseKeys(inputStream);	
+	
+			printf("key1: %d\n",privateKeys.key1);
+			printf("key2: %d\n",privateKeys.key2);
+
+
+			while(strlen(pline = getline(line, max))>0)
+			{	
+				decrypt(privateKeys, pline);
+			}
+
+		}
+		if(failedExec)
+		{
+			printf("Unexpected subcommand!\n");
+			printf("This program can only run with subcommand -c or -d!\n");
+		}
 	}
 
 	return 0;
