@@ -15,9 +15,10 @@ char *encrypt(Keys publicKeys,char *str);
 char *decrypt(Keys publicKeys,char *str);
 char *readFromFile(char fileName[]);
 Keys parseKeys(char* str);
-unsigned long aToXpowerModY(int a, int x, int y);
+long aToXpowerModY(int a, int x, int y);
 void writeEncryptedMessageToFile(char **str);
 void writeDecryptedMessageToFile(char **str);
+long *calcMods(int a,int y);
 
 int main(int argc, char **argv)
 {
@@ -66,7 +67,6 @@ int main(int argc, char **argv)
 
 			char *encryptedMessage;
 			encryptedMessage = readFromFile("encryptedMessage.txt");
-			printf("encryptedMessage: %s",encryptedMessage);
 
 			Keys privateKeys;
 			privateKeys = parseKeys(inputStream);	
@@ -75,7 +75,8 @@ int main(int argc, char **argv)
 			char *decryptedMessage[100];
 			decryptedMessage[j++] = decrypt(privateKeys,encryptedMessage);
 			decryptedMessage[j] = "END";
-
+			
+			printf("Message: %s\n",decryptedMessage[0]);
 			writeDecryptedMessageToFile(decryptedMessage);
 
 
@@ -159,7 +160,6 @@ char *decrypt(Keys privateKeys, char *str)
 			j = 0;
 			a = atoi(encryptedLetter);
 			decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
-			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
 			k++;
 
 			
@@ -170,11 +170,9 @@ char *decrypt(Keys privateKeys, char *str)
 			j = 0;
 			a = atoi(encryptedLetter);
 			decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
-			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
 			k++;
 
 			decryptedMessage[k] = c;
-			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
 			k++;
 		}
 		else
@@ -189,7 +187,6 @@ char *decrypt(Keys privateKeys, char *str)
 	a = atoi(encryptedLetter);
 	decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
 	decryptedMessage[k] = '\0';
-	printf("decryptedMessage: %s\n",decryptedMessage);
 	
 
 	return decryptedMessage;
@@ -264,26 +261,20 @@ Keys parseKeys(char* str)
 	return keys;
 }
 
-unsigned long aToXpowerModY(int a, int x, int y)
+long aToXpowerModY(int a, int x, int y)
 {
 	int mask = 1;
 	int isBit1 = 0;
-	int apow = 0;
-	unsigned long ac = 1;
+	long ac = 1;
 
-	unsigned long ac2 = (unsigned long)pow(a,2) % y;
+	long *mods = calcMods(a,y);
 
 	for(int i = 0; i < 31; i++)
 	{
 		isBit1 = x & mask;
-		if(i == 0)
-		{
-			apow = isBit1*pow(2,i);
-			ac *= (unsigned long)pow(a,apow)%y;
-		}
-		if(i > 0 && isBit1)
+		if(isBit1)
 		{		
-			ac *= (unsigned long)pow(ac2,i)%y;
+			ac *= mods[i];
 			ac = ac % y; 
 		}
 		mask = mask<<1;
@@ -340,4 +331,19 @@ void writeDecryptedMessageToFile(char **str)
 
 	printf("decryptedMessage.txt criado com sucesso!\n");
 	fclose(fptr);
+}
+
+long *calcMods(int a,int y)
+{
+	long *mods;
+	mods = calloc(32,sizeof(long));
+
+	mods[0] = (long)a%y;
+
+	for(int i = 1; i < 32; i++)
+	{
+		mods[i] = (long)pow(mods[i-1],2)%y;
+	}
+
+	return mods;	
 }
