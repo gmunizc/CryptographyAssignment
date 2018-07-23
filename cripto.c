@@ -71,8 +71,9 @@ int main(int argc, char **argv)
 			Keys privateKeys;
 			privateKeys = parseKeys(inputStream);	
 
+			int j = 0;
 			char *decryptedMessage[100];
-			decryptedMessage[j] = decrypt(privateKeys,encryptedMessage);
+			decryptedMessage[j++] = decrypt(privateKeys,encryptedMessage);
 			decryptedMessage[j] = "END";
 
 			writeDecryptedMessageToFile(decryptedMessage);
@@ -134,11 +135,64 @@ char *encrypt(Keys publicKeys, char *message)
 
 }
 
-char *decrypt(Keys publicKeys, char *str)
+char *decrypt(Keys privateKeys, char *str)
 {
-	char *test = "Teste";
-	printf("line: %s",str);
-	return test;
+	char *decryptedMessage;
+	decryptedMessage = calloc(1000,sizeof(char));
+	char *encryptedLetter;
+	encryptedLetter = calloc(10,sizeof(char));
+
+	int a;
+	int x = privateKeys.key1;
+	int y = privateKeys.key2;
+
+	int max = strlen(str);
+	int c, i;
+
+	int j = 0;
+	int k = 0;
+	for (i = 0; i < max && (c=str[i]) != EOF; ++i)
+	{	
+		if(c == ' ')
+		{
+			encryptedLetter[j] = '\0';
+			j = 0;
+			a = atoi(encryptedLetter);
+			decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
+			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
+			k++;
+
+			
+		}
+		else if(c == '\n')
+		{	
+			encryptedLetter[j] = '\0';
+			j = 0;
+			a = atoi(encryptedLetter);
+			decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
+			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
+			k++;
+
+			decryptedMessage[k] = c;
+			printf("decryptedMessage[%d]: %c\n",k,decryptedMessage[k]);
+			k++;
+		}
+		else
+		{ 	
+			encryptedLetter[j] = c;
+			j++;
+		}
+
+		
+	}
+	encryptedLetter[j] = '\0';
+	a = atoi(encryptedLetter);
+	decryptedMessage[k] = (int)aToXpowerModY(a,x,y);
+	decryptedMessage[k] = '\0';
+	printf("decryptedMessage: %s\n",decryptedMessage);
+	
+
+	return decryptedMessage;
 }
 
 char *readFromFile(char fileName[])
