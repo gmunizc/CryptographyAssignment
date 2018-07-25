@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #define MAXLINE 1000
-
+//
 typedef struct {
 	int key1;
 	int key2;
@@ -39,20 +39,25 @@ int main(int argc, char **argv)
 		{	
 			failedExec = 0;
 			printf("Encrypting...\n");
-
-			inputStream = readFromFile("numcripto.txt");
-
+			
+			inputStream = readFromFile("numcripto.txt");			
+			
 			Keys publicKeys;
 			publicKeys = parseKeys(inputStream);	
 
-			char *encryptedMessage[100];
+			char *encryptedMessage[1000];
 
 			int i = 0;
 			while(strlen(pline = getline(line, max))>0)
-			{	
+			{
+				if(pline[0] == '\n')
+				{
+					//printf("\\n\n");
+					continue;
+				}
 				encryptedMessage[i] = encrypt(publicKeys,pline);
 				i++;
-
+				
 			}
 			encryptedMessage[i] = "END";
 			writeEncryptedMessageToFile(encryptedMessage);
@@ -112,7 +117,7 @@ char *encrypt(Keys publicKeys, char *message)
 {
 
 	char *encryptedMessage;
-	encryptedMessage = calloc(150,sizeof(char)	);
+	encryptedMessage = calloc(300,sizeof(char));
 
 	int x = publicKeys.key1;
 	int y = publicKeys.key2;
@@ -124,12 +129,12 @@ char *encrypt(Keys publicKeys, char *message)
 	for(i = 0; i < strlen(message) - 2; i++)
 	{
 		a = message[i];
-		snprintf(buf, 50, "%d", (int)aToXpowerModY(a,x,y));
+		snprintf(buf, 10, "%d", (int)aToXpowerModY(a,x,y));
 		strcat(encryptedMessage,buf);
 		strcat(encryptedMessage," ");
 	}
 	a = message[i];
-	snprintf(buf, 50, "%d", (int)aToXpowerModY(a,x,y));
+	snprintf(buf, 10, "%d", (int)aToXpowerModY(a,x,y));
 	strcat(encryptedMessage,buf);
 
 	return encryptedMessage;
@@ -205,7 +210,7 @@ char *readFromFile(char fileName[])
 
 	int i = 0;
 	char *str;
-	str = malloc(100 * sizeof(char));
+	str = malloc(10000 * sizeof(char));
 	int c;	
 	c = fgetc(fptr);
 	while (c != EOF)
@@ -336,7 +341,7 @@ void writeDecryptedMessageToFile(char **str)
 long *calcMods(int a,int y)
 {
 	long *mods;
-	mods = calloc(32,sizeof(long));
+	mods = malloc(32 * sizeof(long));
 
 	mods[0] = (long)a%y;
 
