@@ -3,21 +3,20 @@
 #include <stdlib.h>
 #include <math.h>
 #define MAXLINE 1000
-//
+
 typedef struct {
 	int key1;
 	int key2;
 } Keys;
 
 //function declarations:
-char *getline(char line[],int max);
+char *getMyLine(char line[],int max);
 char *encrypt(Keys publicKeys,char *str);
 char *decrypt(Keys publicKeys,char *str);
 char *readFromFile(char fileName[]);
 Keys parseKeys(char* str);
 long aToXpowerModY(int a, int x, int y);
-void writeEncryptedMessageToFile(char **str);
-void writeDecryptedMessageToFile(char **str);
+void writeToFile(char fileName[],char **str);
 long *calcMods(int a,int y);
 
 int main(int argc, char **argv)
@@ -48,7 +47,8 @@ int main(int argc, char **argv)
 			char *encryptedMessage[1000];
 
 			int i = 0;
-			while(strlen(pline = getline(line, max))>0)
+			printf("Reading message to be encrypted...\n");
+			while(strlen(pline = getMyLine(line, max))>0)
 			{
 				if(pline[0] == '\n')
 				{
@@ -60,7 +60,9 @@ int main(int argc, char **argv)
 				
 			}
 			encryptedMessage[i] = "END";
-			writeEncryptedMessageToFile(encryptedMessage);
+
+			char fileName[] = "encryptedMessage.txt";
+			writeToFile(fileName, encryptedMessage);
 
 		}	
 		if(strcmp(*(argv+1), "-d") == 0)
@@ -68,10 +70,14 @@ int main(int argc, char **argv)
 			failedExec = 0;
 			printf("Decrypting...\n");
 
+			printf("About to read the file.\n");
+
 			inputStream = readFromFile("numdescripto.txt");
 
 			char *encryptedMessage;
 			encryptedMessage = readFromFile("encryptedMessage.txt");
+			
+			printf("Read the file succesfully.\n");
 
 			Keys privateKeys;
 			privateKeys = parseKeys(inputStream);	
@@ -82,7 +88,9 @@ int main(int argc, char **argv)
 			decryptedMessage[j] = "END";
 			
 			printf("Message: %s\n",decryptedMessage[0]);
-			writeDecryptedMessageToFile(decryptedMessage);
+
+			char fileName[] = "decryptedMessage.txt";
+			writeToFile(fileName, decryptedMessage);
 
 
 		}
@@ -96,7 +104,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-char *getline(char line[],int max)
+char *getMyLine(char line[],int max)
 {
 	int c, i;
 
@@ -117,12 +125,13 @@ char *encrypt(Keys publicKeys, char *message)
 {
 
 	char *encryptedMessage;
-	encryptedMessage = calloc(300,sizeof(char));
+	encryptedMessage = calloc(3000,sizeof(char));
+	char newLine[] = {'\n','\0'};
 
 	int x = publicKeys.key1;
 	int y = publicKeys.key2;
 
-    	char buf[50];
+    	char buf[10];
 
 	int a;
 	int i;
@@ -136,6 +145,7 @@ char *encrypt(Keys publicKeys, char *message)
 	a = message[i];
 	snprintf(buf, 10, "%d", (int)aToXpowerModY(a,x,y));
 	strcat(encryptedMessage,buf);
+	strcat(encryptedMessage,newLine);
 
 	return encryptedMessage;
 
@@ -210,7 +220,7 @@ char *readFromFile(char fileName[])
 
 	int i = 0;
 	char *str;
-	str = malloc(10000 * sizeof(char));
+	str = malloc(1000000 * sizeof(char));
 	int c;	
 	c = fgetc(fptr);
 	while (c != EOF)
@@ -290,12 +300,12 @@ long aToXpowerModY(int a, int x, int y)
 
 }
 
-void writeEncryptedMessageToFile(char **str)
+void writeToFile(char fileName[],char **str)
 {
 
 	FILE *fptr;
 
-	fptr = fopen("encryptedMessage.txt","w");
+	fptr = fopen(fileName,"w");
 	if (fptr == NULL)
 	{
 		printf("Cannot open file!\n");
@@ -305,36 +315,11 @@ void writeEncryptedMessageToFile(char **str)
 	int j = 0;
 	while(strcmp(str[j],"END") != 0)
 	{		
-		fprintf(fptr, "%s\n",str[j]);
-		j++;
-	}
-
-	printf("encryptedMessage.txt criado com sucesso!\n");
-	fclose(fptr);
-}
-
-
-void writeDecryptedMessageToFile(char **str)
-{
-
-	FILE *fptr;
-
-	fptr = fopen("decryptedMessage.txt","w");
-	if (fptr == NULL)
-	{
-		printf("Cannot open file!\n");
-		exit(0);
-	}
-
-	int j = 0;
-	while(strcmp(str[j],"END") != 0)
-	{	
-		fprintf(fptr, "%s ",str[j]);
+		fprintf(fptr, "%s",str[j]);
 		j++;
 	}
 	fprintf(fptr, "\n");
-
-	printf("decryptedMessage.txt criado com sucesso!\n");
+	printf("%s criado com sucesso!\n", fileName);
 	fclose(fptr);
 }
 
