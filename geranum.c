@@ -4,13 +4,17 @@
 #include <string.h>
 #include <math.h>
 
+//Constants:
+#define MAXDIGITNUMBER 10
 
+//Type Primes:
 typedef struct {
 	int prime1;
 	int prime2;
 	int arePrime;
 } Primes;
 
+//Type Keys:
 typedef struct {
 	int key1;
 	int key2;
@@ -22,9 +26,10 @@ Primes getPrimes(void);
 int getPrimeWith(int n);
 Keys getPublicKeys(Primes primes);
 Keys getPrivateKeys(Primes primes);
-void generatePublicKeysFile(Keys publicKeys);
-void generatePrivateKeysFile(Keys privateKeys);
+void writeKeysToFile(char fileName[], Keys publicKeys);
 
+
+//Main:
 int main()
 {
 	Primes primes = getPrimes();
@@ -37,13 +42,14 @@ int main()
 		Keys privateKeys;
 		privateKeys = getPrivateKeys(primes);
 
-		generatePublicKeysFile(publicKeys);
-		generatePrivateKeysFile(privateKeys);
+		writeKeysToFile("numcripto.txt",publicKeys);
+		writeKeysToFile("numdescripto.txt",privateKeys);
 
 	}
 	return 0;
 }
 
+//Tell if a number n is prime:
 int isPrime(int n){
 
 	if((n % 2) == 0)
@@ -60,12 +66,13 @@ int isPrime(int n){
 	return 1;
 }
 
+//Get the prime numbers typed from the keyboard:
 Primes getPrimes(void){
 	
 	Primes primes;
 	primes.arePrime = 0;	
 
-	char textPrime1[10];
+	char textPrime1[MAXDIGITNUMBER];
 	printf("Digite um número primo:\n");
 	fgets(textPrime1, sizeof(textPrime1), stdin);
 	
@@ -77,7 +84,7 @@ Primes getPrimes(void){
 	}
 	else
 	{
-		char textPrime2[10];
+		char textPrime2[MAXDIGITNUMBER];
 		printf("Digite outro número primo:\n");
 		fgets(textPrime2, sizeof(textPrime2), stdin);
 	
@@ -102,6 +109,7 @@ Primes getPrimes(void){
 	}
 }
 
+//Return the number that doesn't have any commom denominators with n:
 int getPrimeWith(int n){
 	int max;
 	max = floor(sqrt((float)n));
@@ -130,6 +138,7 @@ int getPrimeWith(int n){
 
 }
 
+//Get populated publicKeys from Primes:
 Keys getPublicKeys(Primes primes){
 
 	Keys publicKeys;
@@ -146,7 +155,7 @@ Keys getPublicKeys(Primes primes){
 	return publicKeys;
 }
 
-
+//Get populated privateKeys from Primes:
 Keys getPrivateKeys(Primes primes){
 	
 	Keys privateKeys;
@@ -182,39 +191,21 @@ Keys getPrivateKeys(Primes primes){
 	return privateKeys;
 }
 
-void generatePublicKeysFile(Keys publicKeys){
+//Write the keys to a file:
+void writeKeysToFile(char fileName[], Keys keys){
 
-	int publicKey1 = publicKeys.key1;
-	int publicKey2 = publicKeys.key2;
+	int key1 = keys.key1;
+	int key2 = keys.key2;
 
 	FILE *fptr;
 
-	fptr = fopen("numcripto.txt","w");
+	fptr = fopen(fileName,"w");
 	if (fptr == NULL)
 	{
 		printf("Cannot open file!\n");
 		exit(0);
 	}
-	fprintf(fptr, "%d %d\n",publicKey1, publicKey2);
-	printf("numcripto.txt criado com sucesso!\n");
+	fprintf(fptr, "%d %d\n",key1, key2);
+	printf("%s criado com sucesso!\n",fileName);
 	fclose(fptr);
-}
-
-void generatePrivateKeysFile(Keys privateKeys){
-
-	int privateKey1 = privateKeys.key1;
-	int privateKey2 = privateKeys.key2;
-
-	FILE *fptr;
-
-	fptr = fopen("numdescripto.txt","w");
-	if (fptr == NULL)
-	{
-		printf("Cannot open file!\n");
-		exit(0);
-	}
-	fprintf(fptr, "%d %d\n",privateKey1, privateKey2);
-	printf("numdescripto.txt criado com sucesso!\n");
-	fclose(fptr);
-
 }
