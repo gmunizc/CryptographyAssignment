@@ -70,14 +70,10 @@ int main(int argc, char **argv)
 			failedExec = 0;
 			printf("Decrypting...\n");
 
-			printf("About to read the file.\n");
-
 			inputStream = readFromFile("numdescripto.txt");
 
 			char *encryptedMessage;
 			encryptedMessage = readFromFile("encryptedMessage.txt");
-			
-			printf("Read the file succesfully.\n");
 
 			Keys privateKeys;
 			privateKeys = parseKeys(inputStream);	
@@ -87,7 +83,8 @@ int main(int argc, char **argv)
 			decryptedMessage[j++] = decrypt(privateKeys,encryptedMessage);
 			decryptedMessage[j] = "END";
 			
-			printf("Message: %s\n",decryptedMessage[0]);
+			printf("Decrypted Message:\n");
+			printf("%s\n",decryptedMessage[0]);
 
 			char fileName[] = "decryptedMessage.txt";
 			writeToFile(fileName, decryptedMessage);
@@ -154,7 +151,7 @@ char *encrypt(Keys publicKeys, char *message)
 char *decrypt(Keys privateKeys, char *str)
 {
 	char *decryptedMessage;
-	decryptedMessage = calloc(1000,sizeof(char));
+	decryptedMessage = calloc(10000,sizeof(char));
 	char *encryptedLetter;
 	encryptedLetter = calloc(10,sizeof(char));
 
