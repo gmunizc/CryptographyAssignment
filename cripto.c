@@ -33,7 +33,6 @@ int main(int argc, char **argv)
 	int max = MAXLINE;
 	char line[MAXLINE];
 	char *pline;
-
 	char *inputStream;
 
 	int failedExec = 1;
@@ -96,7 +95,6 @@ int main(int argc, char **argv)
 
 			char fileName[] = "decryptedMessage.txt";
 			writeToFile(fileName, decryptedMessage);
-
 
 		}
 		if(failedExec)
