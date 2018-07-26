@@ -26,7 +26,7 @@ Primes getPrimes(void);
 int getPrimeWith(int n);
 Keys getPublicKeys(Primes primes);
 Keys getPrivateKeys(Primes primes);
-void writeKeysToFile(char fileName[], Keys publicKeys);
+void writeKeysToFile(char fileName[], Keys keys);
 
 
 //Main:
