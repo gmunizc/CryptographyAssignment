@@ -2,8 +2,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define MAXLINE 1000
 
+//Constants:
+#define MAXLINE 1000
+#define MAXINPUTLINENUMBER 1000
+#define MAXDIGITNUMBER 10
+#define LOWAVGDIGITNUMBER 2
+#define MAXCHARNUMBPERFILE 1000000
+#define BINARYLENGH 32
+
+//Type Keys:
 typedef struct {
 	int key1;
 	int key2;
@@ -19,6 +27,7 @@ long aToXpowerModY(int a, int x, int y);
 void writeToFile(char fileName[],char **str);
 long *calcMods(int a,int y);
 
+//Main:
 int main(int argc, char **argv)
 {
 	int max = MAXLINE;
@@ -44,7 +53,7 @@ int main(int argc, char **argv)
 			Keys publicKeys;
 			publicKeys = parseKeys(inputStream);	
 
-			char *encryptedMessage[1000];
+			char *encryptedMessage[MAXINPUTLINENUMBER];
 
 			int i = 0;
 			printf("Reading message to be encrypted...\n");
@@ -52,7 +61,6 @@ int main(int argc, char **argv)
 			{
 				if(pline[0] == '\n')
 				{
-					//printf("\\n\n");
 					continue;
 				}
 				encryptedMessage[i] = encrypt(publicKeys,pline);
@@ -79,7 +87,7 @@ int main(int argc, char **argv)
 			privateKeys = parseKeys(inputStream);	
 
 			int j = 0;
-			char *decryptedMessage[100];
+			char *decryptedMessage[2];
 			decryptedMessage[j++] = decrypt(privateKeys,encryptedMessage);
 			decryptedMessage[j] = "END";
 			
@@ -101,6 +109,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+//Read line of input message:
 char *getMyLine(char line[],int max)
 {
 	int c, i;
@@ -118,29 +127,30 @@ char *getMyLine(char line[],int max)
 	return line;
 }
 
+//Encrypt line of input message:
 char *encrypt(Keys publicKeys, char *message)
 {
 
 	char *encryptedMessage;
-	encryptedMessage = calloc(3000,sizeof(char));
+	encryptedMessage = calloc(MAXDIGITNUMBER * MAXLINE,sizeof(char));
 	char newLine[] = {'\n','\0'};
 
 	int x = publicKeys.key1;
 	int y = publicKeys.key2;
 
-    	char buf[10];
+    	char buf[MAXDIGITNUMBER];
 
 	int a;
 	int i;
 	for(i = 0; i < strlen(message) - 2; i++)
 	{
 		a = message[i];
-		snprintf(buf, 10, "%d", (int)aToXpowerModY(a,x,y));
+		snprintf(buf, MAXDIGITNUMBER, "%d", (int)aToXpowerModY(a,x,y));
 		strcat(encryptedMessage,buf);
 		strcat(encryptedMessage," ");
 	}
 	a = message[i];
-	snprintf(buf, 10, "%d", (int)aToXpowerModY(a,x,y));
+	snprintf(buf, MAXDIGITNUMBER, "%d", (int)aToXpowerModY(a,x,y));
 	strcat(encryptedMessage,buf);
 	strcat(encryptedMessage,newLine);
 
@@ -148,12 +158,13 @@ char *encrypt(Keys publicKeys, char *message)
 
 }
 
+//Decrypt the whole encrypted message read from file:
 char *decrypt(Keys privateKeys, char *str)
 {
 	char *decryptedMessage;
-	decryptedMessage = calloc(10000,sizeof(char));
+	decryptedMessage = calloc(MAXCHARNUMBPERFILE/LOWAVGDIGITNUMBER,sizeof(char));
 	char *encryptedLetter;
-	encryptedLetter = calloc(10,sizeof(char));
+	encryptedLetter = calloc(MAXDIGITNUMBER,sizeof(char));
 
 	int a;
 	int x = privateKeys.key1;
@@ -204,6 +215,7 @@ char *decrypt(Keys privateKeys, char *str)
 	return decryptedMessage;
 }
 
+//Read the content of a file:
 char *readFromFile(char fileName[])
 {
 	FILE *fptr;
@@ -215,22 +227,32 @@ char *readFromFile(char fileName[])
 		exit(0);
 	}
 
-	int i = 0;
 	char *str;
-	str = malloc(1000000 * sizeof(char));
+	str = malloc(MAXCHARNUMBPERFILE * sizeof(char));
+
+	int i = 0;
 	int c;	
 	c = fgetc(fptr);
 	while (c != EOF)
-	{
-		str[i] = c;
-		i++;
-		c = fgetc(fptr);
+	{	
+		if(i >= MAXCHARNUMBPERFILE)
+		{	printf("ERROR:\n");
+			c = EOF;
+			str[i-1] = '\0';
+			printf("This file was too long to read it all... It was read up to its %dth character\n",MAXCHARNUMBPERFILE);
+		}
+		else
+		{
+			str[i] = c;
+			i++;
+			c = fgetc(fptr);
+		}
 	}
 	fclose(fptr);
-	
 	return str;
 }
 
+//Parse a string of digits and populate a Keys type.
 Keys parseKeys(char* str)
 {
 	Keys keys;
@@ -238,8 +260,8 @@ Keys parseKeys(char* str)
 	char *key1;
 	char *key2;
 
-	key1 = malloc(10 * sizeof(char));
-	key2 = malloc(10 * sizeof(char));
+	key1 = malloc(MAXDIGITNUMBER * sizeof(char));
+	key2 = malloc(MAXDIGITNUMBER * sizeof(char));
 
 	int isFirstKey = 1;
 
@@ -273,30 +295,32 @@ Keys parseKeys(char* str)
 	return keys;
 }
 
+//Calculate (a^x)%y:
 long aToXpowerModY(int a, int x, int y)
 {
 	int mask = 1;
 	int isBit1 = 0;
-	long ac = 1;
+	long accumulated = 1;
 
 	long *mods = calcMods(a,y);
 
-	for(int i = 0; i < 31; i++)
+	for(int i = 0; i < BINARYLENGH; i++)
 	{
 		isBit1 = x & mask;
 		if(isBit1)
 		{		
-			ac *= mods[i];
-			ac = ac % y; 
+			accumulated *= mods[i];
+			accumulated %= y; 
 		}
 		mask = mask<<1;
 		
 	}
 
-	return ac;
+	return accumulated;
 
 }
 
+//Write a message to a file:
 void writeToFile(char fileName[],char **str)
 {
 
@@ -320,14 +344,15 @@ void writeToFile(char fileName[],char **str)
 	fclose(fptr);
 }
 
+//Calculate all the mods of each binary bit of a to the power of 2:
 long *calcMods(int a,int y)
 {
 	long *mods;
-	mods = malloc(32 * sizeof(long));
+	mods = malloc(BINARYLENGH * sizeof(long));
 
 	mods[0] = (long)a%y;
 
-	for(int i = 1; i < 32; i++)
+	for(int i = 1; i < BINARYLENGH; i++)
 	{
 		mods[i] = (long)pow(mods[i-1],2)%y;
 	}
