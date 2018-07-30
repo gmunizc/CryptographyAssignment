@@ -115,7 +115,8 @@ char *getMyLine(char line[],int max)
 	for (i = 0; i < max - 1 && (c=getchar()) != EOF && c != '\n'; ++i)
 		line[i] = c;
 
-	if (c == '\n') {
+	if (c == '\n')
+	{
 		line[i] = c;
 		++i;
 	}

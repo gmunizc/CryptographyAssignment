@@ -50,7 +50,8 @@ int main()
 }
 
 //Tell if a number n is prime:
-int isPrime(int n){
+int isPrime(int n)
+{
 
 	if((n % 2) == 0)
 	{
@@ -58,8 +59,10 @@ int isPrime(int n){
 	}
 
 	int max = floor(sqrt((float)n));
-	for (int i = 3; i <= max; i+=2){
-		if((n % i) == 0){
+	for (int i = 3; i <= max; i+=2)
+	{
+		if((n % i) == 0)
+		{
 			return 0;
 		}
 	}
@@ -67,7 +70,8 @@ int isPrime(int n){
 }
 
 //Get the prime numbers typed from the keyboard:
-Primes getPrimes(void){
+Primes getPrimes(void)
+{
 	
 	Primes primes;
 	primes.arePrime = 0;	
@@ -110,7 +114,8 @@ Primes getPrimes(void){
 }
 
 //Return the number that doesn't have any commom denominators with n:
-int getPrimeWith(int n){
+int getPrimeWith(int n)
+{
 	int max;
 	max = floor(sqrt((float)n));
 	
@@ -125,7 +130,8 @@ int getPrimeWith(int n){
 	}
 
 	int count = 0;
-	for (int j = primeWith+2; count < 1; j+=2){
+	for (int j = primeWith+2; count < 1; j+=2)
+	{
 		if(isPrime(j))
 		{
 			primeWith = j;
@@ -139,7 +145,8 @@ int getPrimeWith(int n){
 }
 
 //Get populated publicKeys from Primes:
-Keys getPublicKeys(Primes primes){
+Keys getPublicKeys(Primes primes)
+{
 
 	Keys publicKeys;
 
@@ -156,7 +163,8 @@ Keys getPublicKeys(Primes primes){
 }
 
 //Get populated privateKeys from Primes:
-Keys getPrivateKeys(Primes primes){
+Keys getPrivateKeys(Primes primes)
+{
 	
 	Keys privateKeys;
 
@@ -192,7 +200,8 @@ Keys getPrivateKeys(Primes primes){
 }
 
 //Write the keys to a file:
-void writeKeysToFile(char fileName[], Keys keys){
+void writeKeysToFile(char fileName[], Keys keys)
+{
 
 	int key1 = keys.key1;
 	int key2 = keys.key2;
